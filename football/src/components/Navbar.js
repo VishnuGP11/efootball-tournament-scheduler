@@ -6,10 +6,9 @@ export default function Navbar() {
     <header className="header">
       <div className="logo">E-football tournament scheduler</div>
       <nav className="nav">
-        <a href="#home">Home</a>
+        <a href="/">Home</a>
         <a href="teams">Teams</a>
         <a href="addTournament">Create Tournament</a>
-        <a href="matches">Upcoming Matches</a>
         <a href="standings">Current Standing</a>
         <button className="signin">Sign in</button>
         <button className="register">Register</button>

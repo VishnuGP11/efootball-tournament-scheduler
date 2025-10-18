@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const TournamentDetails = () => {
@@ -22,21 +23,39 @@ const TournamentDetails = () => {
       <p><strong>Type:</strong> {tournament.tournamentType}</p>
 
       <div style={styles.section}>
-        <h3>👥 Teams</h3>
-        <ul style={styles.list}>
-          {tournament.teams.map((team, index) => (
-            <li key={index} style={styles.listItem}>{team}</li>
-          ))}
-        </ul>
-      </div>
+  <h3>👥 Teams</h3>
+  <ul style={styles.list}>
+    {tournament.teams.map((team, index) => (
+      <li key={index} style={styles.listItem}>
+        <Link
+          to={`/team/${encodeURIComponent(team)}`}
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          {team}
+        </Link>
+      </li>
+    ))}
+  </ul>
+</div>
+
 
       <div style={styles.section}>
         <h3>⚔️ Matchups</h3>
         <ul style={styles.matchList}>
           {tournament.matchUp.map((match, index) => (
-            <li key={index} style={styles.matchItem}>
-              <strong>Match {index + 1}:</strong> {match.teamA} vs {match.teamB}
-            </li>
+            <li
+  key={index}
+  style={{ ...styles.matchItem, cursor: 'pointer' }}
+  onClick={() => navigate(`/match-details/${match.matchId}`, {
+  state: { match, matchIndex: index + 1 }
+})}>
+  <div style={styles.matchRow}>
+    <span><strong>Match {index + 1}:</strong> {match.teamA} vs {match.teamB}</span>
+    <span style={styles.score}>{match.goalsScoredByTeamA}-{match.goalsScoredByTeamB}</span>
+  </div>
+</li>
+
+
           ))}
         </ul>
       </div>
@@ -72,6 +91,16 @@ const styles = {
   matchList: {
     paddingLeft: '1.5rem'
   },
+  matchRow: {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center'
+},
+score: {
+  marginLeft: '1rem',
+  fontWeight: 'bold',
+  color: '#555'
+},
   matchItem: {
     marginBottom: '0.75rem',
     backgroundColor: '#fff',

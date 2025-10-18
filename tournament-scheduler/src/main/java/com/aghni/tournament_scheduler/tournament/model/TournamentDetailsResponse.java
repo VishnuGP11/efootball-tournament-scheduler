@@ -1,5 +1,7 @@
 package com.aghni.tournament_scheduler.tournament.model;
 
+import com.aghni.tournament_scheduler.match.model.Matchup;
+
 import java.util.List;
 
 public class TournamentDetailsResponse {

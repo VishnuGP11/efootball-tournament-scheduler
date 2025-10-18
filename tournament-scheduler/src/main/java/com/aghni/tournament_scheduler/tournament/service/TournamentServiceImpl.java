@@ -1,11 +1,14 @@
 package com.aghni.tournament_scheduler.tournament.service;
 
+import com.aghni.tournament_scheduler.match.entity.Match;
+import com.aghni.tournament_scheduler.match.repository.MatchRepository;
 import com.aghni.tournament_scheduler.team.entity.Team;
 import com.aghni.tournament_scheduler.tournament.entity.Tournament;
 import com.aghni.tournament_scheduler.tournament.exception.TournamentNotFoundException;
+import com.aghni.tournament_scheduler.tournament.mapper.TournamentMapper;
 import com.aghni.tournament_scheduler.tournament.model.AddTournamentRequest;
 import com.aghni.tournament_scheduler.tournament.model.AddTournamentResponse;
-import com.aghni.tournament_scheduler.tournament.model.Matchup;
+import com.aghni.tournament_scheduler.match.model.Matchup;
 import com.aghni.tournament_scheduler.tournament.model.TournamentDetailsResponse;
 import com.aghni.tournament_scheduler.tournament.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +28,12 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private TournamentRepository tournamentRepository;
 
-    public TournamentServiceImpl(TournamentRepository tournamentRepository) {
+    @Autowired
+    private MatchRepository matchRepository;
+
+    public TournamentServiceImpl(TournamentRepository tournamentRepository, MatchRepository matchRepository) {
         this.tournamentRepository = tournamentRepository;
+        this.matchRepository = matchRepository;
     }
 
     @Override
@@ -77,15 +84,35 @@ public class TournamentServiceImpl implements TournamentService {
         if ("round robin".equalsIgnoreCase(tournament.getTypeOfSchedule())) {
             for (int i = 0; i < teams.size(); i++) {
                 for (int j = i + 1; j < teams.size(); j++) {
-                    matchups.add(new Matchup(teams.get(i).getTeamName(), teams.get(j).getTeamName()));
+                    Matchup matchup = new Matchup(teams.get(i).getTeamName(), teams.get(j).getTeamName(),0,0);
+                    Match match = TournamentMapper.toMatchEntity(matchup);
+                    matchRepository.save(match);
+                    logger.info("Round robin type tournament, Match details saved in match repository of match id : "+match.getMatchId());
+                    matchup.setMatchId(match.getMatchId());
+                    matchups.add(matchup);
+                    logger.info("Round robin type tournament, Match details added to Matchup POJO with matchId "+match.getMatchId());
                 }
             }
         } else if ("elimination".equalsIgnoreCase(tournament.getTypeOfSchedule())) {
             for (int i = 0; i < teams.size(); i += 2) {
                 if (i + 1 < teams.size()) {
-                    matchups.add(new Matchup(teams.get(i).getTeamName(), teams.get(i + 1).getTeamName()));
+                    Matchup matchup = new Matchup(teams.get(i).getTeamName(), teams.get(i + 1).getTeamName(),0,0);
+                    Match match = TournamentMapper.toMatchEntity(matchup);
+                    matchRepository.save(match);
+                    logger.info("Elimination type tournament, Match details saved in match repository of match id : "+match.getMatchId());
+                    matchup.setMatchId(match.getMatchId());
+                    matchups.add(matchup);
+                    logger.info("Elimination type tournament, Match details added to Matchup POJO with matchId "+match.getMatchId());
+
                 } else {
-                    matchups.add(new Matchup(teams.get(i).getTeamName(), "BYE"));
+                    logger.info("Odd number of teams");
+                    Matchup matchup = new Matchup(teams.get(i).getTeamName(), "BYE",0,0);
+                    Match match = TournamentMapper.toMatchEntity(matchup);
+                    matchRepository.save(match);
+                    logger.info("Elimination type tournament, Match details saved in match repository of match id : "+match.getMatchId());
+                    matchup.setMatchId(match.getMatchId());
+                    matchups.add(matchup);
+                    logger.info("Elimination type tournament, Match details added to Matchup POJO with matchId "+match.getMatchId());
                 }
             }
         }
@@ -93,7 +120,9 @@ public class TournamentServiceImpl implements TournamentService {
         TournamentDetailsResponse response = new TournamentDetailsResponse();
         response.setTournamentName(tournament.getTournamentName());
         response.setTournamentType(tournament.getTypeOfSchedule());
-        response.setTeams(teams.stream().map(Team::getTeamName).collect(Collectors.toList()));
+        response.setTeams(teams.stream()
+                .map(Team::getTeamName)
+                .collect(Collectors.toList()));
         response.setMatchUp(matchups);
 
         return response;

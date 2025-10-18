@@ -1,6 +1,8 @@
 package com.aghni.tournament_scheduler.config;
 
 import com.aghni.tournament_scheduler.common.ErrorResponse;
+import com.aghni.tournament_scheduler.match.exception.MatchNotFoundException;
+import com.aghni.tournament_scheduler.team.exception.TeamNotFoundException;
 import com.aghni.tournament_scheduler.tournament.exception.TournamentNameAlreadyExistsException;
 import com.aghni.tournament_scheduler.tournament.exception.TournamentNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,18 @@ public class GlobalExceptionHandler {
 
          @ExceptionHandler(TournamentNotFoundException.class)
          public ResponseEntity<ErrorResponse> handleTournamentNotFoundException(TournamentNotFoundException e) {
+             ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(),e.getMessage(),404);
+             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+         }
+
+         @ExceptionHandler(MatchNotFoundException.class)
+         public ResponseEntity<ErrorResponse> handleMatchNotFoundException(MatchNotFoundException e) {
+             ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(),e.getMessage(),404);
+             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+         }
+
+         @ExceptionHandler(TeamNotFoundException.class)
+         public ResponseEntity<ErrorResponse> handleTeamNotFoundException(TeamNotFoundException e) {
              ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(),e.getMessage(),404);
              return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
          }
