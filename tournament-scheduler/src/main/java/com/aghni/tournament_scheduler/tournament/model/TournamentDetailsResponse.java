@@ -8,7 +8,7 @@ public class TournamentDetailsResponse {
 
     private String tournamentName;
     private String tournamentType;
-    private List<String> teams;
+    private List<TeamDetailsDTO> teams;
     private List<Matchup> matchUp;
 
     public String getTournamentType() {
@@ -27,11 +27,11 @@ public class TournamentDetailsResponse {
         this.tournamentName = tournamentName;
     }
 
-    public List<String> getTeams() {
+    public List<TeamDetailsDTO> getTeams() {
         return teams;
     }
 
-    public void setTeams(List<String> teams) {
+    public void setTeams(List<TeamDetailsDTO> teams) {
         this.teams = teams;
     }
 
@@ -47,7 +47,7 @@ public class TournamentDetailsResponse {
 
     }
 
-    public TournamentDetailsResponse(String tournamentName, String tournamentType, List<String> teams, List<Matchup> matchUp) {
+    public TournamentDetailsResponse(String tournamentName, String tournamentType, List<TeamDetailsDTO> teams, List<Matchup> matchUp) {
         this.tournamentName = tournamentName;
         this.tournamentType = tournamentType;
         this.teams = teams;

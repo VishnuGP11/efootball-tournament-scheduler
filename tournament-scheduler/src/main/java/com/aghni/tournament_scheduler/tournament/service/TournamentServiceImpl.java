@@ -9,6 +9,7 @@ import com.aghni.tournament_scheduler.tournament.mapper.TournamentMapper;
 import com.aghni.tournament_scheduler.tournament.model.AddTournamentRequest;
 import com.aghni.tournament_scheduler.tournament.model.AddTournamentResponse;
 import com.aghni.tournament_scheduler.match.model.Matchup;
+import com.aghni.tournament_scheduler.tournament.model.TeamDetailsDTO;
 import com.aghni.tournament_scheduler.tournament.model.TournamentDetailsResponse;
 import com.aghni.tournament_scheduler.tournament.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,8 +122,9 @@ public class TournamentServiceImpl implements TournamentService {
         response.setTournamentName(tournament.getTournamentName());
         response.setTournamentType(tournament.getTypeOfSchedule());
         response.setTeams(teams.stream()
-                .map(Team::getTeamName)
-                .collect(Collectors.toList()));
+                        .map(team -> new TeamDetailsDTO(team.getId(), team.getTeamName()))
+                                .collect(Collectors.toList()));
+
         response.setMatchUp(matchups);
 
         return response;
