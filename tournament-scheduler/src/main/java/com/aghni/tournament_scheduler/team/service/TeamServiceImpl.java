@@ -5,14 +5,21 @@ import com.aghni.tournament_scheduler.team.exception.TeamNotFoundException;
 import com.aghni.tournament_scheduler.team.mapper.TeamMapper;
 import com.aghni.tournament_scheduler.team.model.TeamDetailsResponse;
 import com.aghni.tournament_scheduler.team.repository.TeamRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+
 
 @Service
 public class TeamServiceImpl implements TeamService {
 
     @Autowired
     private TeamRepository teamRepository;
+
+    Logger logger = LoggerFactory.getLogger(TeamServiceImpl.class);
 
     public TeamServiceImpl(TeamRepository teamRepository) {
         this.teamRepository = teamRepository;
@@ -24,6 +31,7 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new TeamNotFoundException("Team Not Found for the mentioned id : "+teamId) );
         TeamDetailsResponse teamDetailsResponse = TeamMapper.teamToTeamDetailsResponse(team);
+        logger.info("Team Details with team id : {}", teamId);
         return teamDetailsResponse;
     }
 }

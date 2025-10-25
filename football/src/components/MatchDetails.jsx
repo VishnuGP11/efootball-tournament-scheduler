@@ -6,27 +6,32 @@ const MatchDetails = () => {
   const navigate = useNavigate();
   const { matchId } = useParams();
 
-  const [match, setMatch] = useState(location.state?.match || null);
-  const [loading, setLoading] = useState(!match);
+  const [match, setMatch] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!match && matchId) {
-      fetch(`http://localhost:8008/match/match-details/${matchId}`)
-        .then(res => {
-          if (!res.ok) throw new Error('Match not found');
-          return res.json();
-        })
-        .then(data => {
-          setMatch(data);
-          setLoading(false);
-        })
-        .catch(err => {
-          setError(err.message);
-          setLoading(false);
-        });
+ useEffect(() => {
+  let isCancelled = false;
+
+  const fetchMatchDetails = async () => {
+    try {
+      const res = await fetch(`http://localhost:8008/match/match-details/${matchId}`);
+      const data = await res.json();
+      if (!isCancelled) setMatch(data);
+    } catch (err) {
+      if (!isCancelled) setError(err.message);
+    } finally {
+      if (!isCancelled) setLoading(false);
     }
-  }, [matchId, match]);
+  };
+
+  fetchMatchDetails();
+
+  return () => {
+    isCancelled = true;
+  };
+}, [matchId]);
+
 
   if (loading) {
     return <div style={styles.container}><h2>⏳ Loading match details...</h2></div>;

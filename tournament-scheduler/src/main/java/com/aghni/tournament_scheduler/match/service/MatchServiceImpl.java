@@ -26,6 +26,7 @@ public class MatchServiceImpl implements MatchService {
     public Matchup getMatchDetails(Integer matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new MatchNotFoundException("Match not found for the given id"));
+
         logger.info("Match found with match id " + matchId);
 
         Matchup matchup = MatchMapper.toMatchUp(match);

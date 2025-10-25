@@ -13,7 +13,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<FootballHome />} />
-        <Route path="/teams/:teamId" element={<TeamDetailsPage />} />
+        <Route path="/team/:teamId" element={<TeamDetailsPage />} />
         <Route path="/addTournament" element={<AddTournament />} />
         <Route path="/tournament-details" element={<TournamentDetails />} />
         <Route path="/match-details/:matchId" element={<MatchDetails />} />

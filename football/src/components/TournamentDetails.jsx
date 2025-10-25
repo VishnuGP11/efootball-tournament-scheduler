@@ -26,15 +26,25 @@ const TournamentDetails = () => {
   <h3>👥 Teams</h3>
   <ul style={styles.list}>
     {tournament.teams.map((team, index) => (
-      <li key={index} style={styles.listItem}>
-        <Link
-          to={`/team/${encodeURIComponent(team)}`}
-          style={{ textDecoration: 'none', color: 'inherit' }}
-        >
-          {team}
-        </Link>
-      </li>
-    ))}
+  <li key={index} style={styles.listItem}>
+    <span
+  style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+  onClick={async () => {
+  try {
+    const res = await fetch(`http://localhost:8008/team/team-details/${team.teamId}`);
+    if (!res.ok) throw new Error('Failed to fetch team details');
+    const teamDetails = await res.json();
+    navigate(`/team/${team.teamId}`, { state: { teamDetails } });
+  } catch (err) {
+    console.error('Error fetching team:', err);
+    alert('Failed to load team details.');
+  }
+}}
+>
+  {team.teamName}
+</span>
+  </li>
+))}
   </ul>
 </div>
 
