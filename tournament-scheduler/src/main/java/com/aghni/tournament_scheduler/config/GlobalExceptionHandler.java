@@ -5,6 +5,7 @@ import com.aghni.tournament_scheduler.match.exception.MatchNotFoundException;
 import com.aghni.tournament_scheduler.team.exception.TeamNotFoundException;
 import com.aghni.tournament_scheduler.tournament.exception.TournamentNameAlreadyExistsException;
 import com.aghni.tournament_scheduler.tournament.exception.TournamentNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,4 +39,10 @@ public class GlobalExceptionHandler {
              ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(),e.getMessage(),404);
              return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
          }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(LocalDateTime.now(),"Team name already exists in this tournament.",409));
+    }
 }
