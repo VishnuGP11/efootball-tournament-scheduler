@@ -1,17 +1,55 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 const TournamentDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const tournament = location.state?.tournamentDetails;
+  const { tournamentId: paramTournamentId } = useParams();
 
-  if (!tournament) {
+  const initialTournament = location.state?.tournamentDetails;
+  const tournamentId = initialTournament?.tournamentId || paramTournamentId;
+
+  const [tournament, setTournament] = useState(initialTournament || null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(!initialTournament);
+
+  useEffect(() => {
+    if (!tournamentId) {
+      setError("Tournament ID missing.");
+      return;
+    }
+
+     fetch(`http://localhost:8008/tournaments/${tournamentId}/details`)
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch tournament details");
+        return res.json();
+      })
+      .then(data => {
+        setTournament(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error fetching tournament:", err);
+        setError("❌ Failed to refresh tournament details.");
+        setLoading(false);
+      });
+  }, [tournamentId]);
+
+  if (error) {
     return (
-      <div style={{ padding: '2rem', fontFamily: 'Segoe UI Emoji' }}>
-        <h2>❌ No tournament data found</h2>
+      <div style={styles.container}>
+        <h2>❌ Error</h2>
+        <p>{error}</p>
         <button onClick={() => navigate('/')} style={styles.button}>Go Home</button>
+      </div>
+    );
+  }
+
+  if (loading || !tournament) {
+    return (
+      <div style={styles.container}>
+        <h2>⏳ Loading tournament details...</h2>
+        <div style={styles.spinner} />
       </div>
     );
   }
@@ -23,49 +61,47 @@ const TournamentDetails = () => {
       <p><strong>Type:</strong> {tournament.tournamentType}</p>
 
       <div style={styles.section}>
-  <h3>👥 Teams</h3>
-  <ul style={styles.list}>
-    {tournament.teams.map((team, index) => (
-  <li key={index} style={styles.listItem}>
-    <span
-  style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
-  onClick={async () => {
-  try {
-    const res = await fetch(`http://localhost:8008/team/team-details/${team.teamId}`);
-    if (!res.ok) throw new Error('Failed to fetch team details');
-    const teamDetails = await res.json();
-    navigate(`/team/${team.teamId}`, { state: { teamDetails } });
-  } catch (err) {
-    console.error('Error fetching team:', err);
-    alert('Failed to load team details.');
-  }
-}}
->
-  {team.teamName}
-</span>
-  </li>
-))}
-  </ul>
-</div>
-
+        <h3>👥 Teams</h3>
+        <ul style={styles.list}>
+          {tournament.teams.map((team, index) => (
+            <li key={index} style={styles.listItem}>
+              <span
+                style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`http://localhost:8008/team/team-details/${team.teamId}`);
+                    if (!res.ok) throw new Error('Failed to fetch team details');
+                    const teamDetails = await res.json();
+                    navigate(`/team/${team.teamId}`, { state: { teamDetails } });
+                  } catch (err) {
+                    console.error('Error fetching team:', err);
+                    alert('Failed to load team details.');
+                  }
+                }}
+              >
+                {team.teamName}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div style={styles.section}>
         <h3>⚔️ Matchups</h3>
         <ul style={styles.matchList}>
           {tournament.matchUp.map((match, index) => (
             <li
-  key={index}
-  style={{ ...styles.matchItem, cursor: 'pointer' }}
-  onClick={() => navigate(`/match-details/${match.matchId}`, {
-  state: { match, matchIndex: index + 1 }
-})}>
-  <div style={styles.matchRow}>
-    <span><strong>Match {index + 1}:</strong> {match.teamA} vs {match.teamB}</span>
-    <span style={styles.score}>{match.goalsScoredByTeamA}-{match.goalsScoredByTeamB}</span>
-  </div>
-</li>
-
-
+              key={index}
+              style={{ ...styles.matchItem, cursor: 'pointer' }}
+              onClick={() => navigate(`/match-details/${match.matchId}`, {
+                state: { match, matchIndex: index + 1 }
+              })}
+            >
+              <div style={styles.matchRow}>
+                <span><strong>Match {index + 1}:</strong> {match.teamA} vs {match.teamB}</span>
+                <span style={styles.score}>{match.goalsScoredByTeamA}-{match.goalsScoredByTeamB}</span>
+              </div>
+            </li>
           ))}
         </ul>
       </div>
@@ -102,15 +138,15 @@ const styles = {
     paddingLeft: '1.5rem'
   },
   matchRow: {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center'
-},
-score: {
-  marginLeft: '1rem',
-  fontWeight: 'bold',
-  color: '#555'
-},
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  score: {
+    marginLeft: '1rem',
+    fontWeight: 'bold',
+    color: '#555'
+  },
   matchItem: {
     marginBottom: '0.75rem',
     backgroundColor: '#fff',
@@ -127,6 +163,15 @@ score: {
     border: 'none',
     borderRadius: '6px',
     cursor: 'pointer'
+  },
+  spinner: {
+    margin: '1rem auto',
+    width: '24px',
+    height: '24px',
+    border: '4px solid #ccc',
+    borderTop: '4px solid #333',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite'
   }
 };
 

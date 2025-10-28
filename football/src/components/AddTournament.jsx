@@ -24,8 +24,6 @@ const handleSubmit = async (e) => {
       body: JSON.stringify(payload)
     });
 
-    console.log(createRes);
-    
     if (!createRes.ok) {
       alert("Tournament creation failed.");
       return;
@@ -34,8 +32,10 @@ const handleSubmit = async (e) => {
     const tournamentDetails = await createRes.json();
     console.log(tournamentDetails);
 
-    // ✅ Directly use the response to navigate
-    navigate('/tournament-details', { state: { tournamentDetails } });
+    // ✅ Navigate with tournamentId in path
+    navigate(`/tournament-details/${tournamentDetails.tournamentId}`, {
+      state: { tournamentDetails }
+    });
   } catch (error) {
     console.error("Error:", error);
     alert("Something went wrong.");

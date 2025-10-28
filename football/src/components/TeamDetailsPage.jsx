@@ -4,7 +4,6 @@ import { useParams, Link, useLocation } from "react-router-dom";
 export default function TeamDetailsPage() {
   const { teamId } = useParams();
   const location = useLocation();
-  console.log("Location state:", location.state);
 
   const [team, setTeam] = useState(location.state?.teamDetails || null);
   const [error, setError] = useState(null);
@@ -12,9 +11,9 @@ export default function TeamDetailsPage() {
   const [editableFields, setEditableFields] = useState({
     teamName: "",
     playingStyle: "",
-    owner: "",
-    tournamentName: ""
+    owner: ""
   });
+  const [hasPendingChanges, setHasPendingChanges] = useState(false);
 
   useEffect(() => {
     if (team) return;
@@ -43,25 +42,15 @@ export default function TeamDetailsPage() {
 
   const commitField = (field) => {
     const value = editableFields[field].trim();
-    if (!value) {
+    if (!value || value === team[field]) {
       setHoverField(null);
       return;
     }
 
-    if (field === "tournamentName") {
-      setTeam(prev => ({
-        ...prev,
-        tournamentAssociatedWithTeamDTO: {
-          ...prev.tournamentAssociatedWithTeamDTO,
-          tournamentName: value
-        }
-      }));
-    } else {
-      setTeam(prev => ({ ...prev, [field]: value }));
-    }
-
+    setTeam(prev => ({ ...prev, [field]: value }));
     setEditableFields(prev => ({ ...prev, [field]: "" }));
     setHoverField(null);
+    setHasPendingChanges(true);
   };
 
   const handleKeyDown = (e, field) => {
@@ -69,6 +58,51 @@ export default function TeamDetailsPage() {
       commitField(field);
     }
   };
+
+  const handleUpdate = () => {
+  const url = `http://localhost:8008/team/update-team-details/${teamId}`;
+
+  const teamRequestDTO = {
+    teamId: team.teamId,
+    teamName: team.teamName,
+    playingStyle: team.playingStyle,
+    owner: team.owner,
+    tournamentId: team.tournamentAssociatedWithTeamDTO?.tournamentId
+  };
+
+  fetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(teamRequestDTO)
+  })
+    .then(res => {
+      if (!res.ok) throw new Error(`Update failed. Status: ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+  const dto = data.teamRequestDTO;
+
+  const updatedTeam = {
+    teamId: dto.teamId,
+    teamName: dto.teamName,
+    playingStyle: dto.playingStyle,
+    owner: dto.owner,
+    tournamentAssociatedWithTeamDTO: {
+      tournamentId: dto.tournamentId,
+      tournamentName: team.tournamentAssociatedWithTeamDTO?.tournamentName // preserve existing name
+    }
+  };
+
+  setTeam(updatedTeam);
+  setHasPendingChanges(false);
+  alert("✅ Team details updated successfully.");
+})
+
+    .catch(err => {
+      console.error("Error updating team:", err);
+      alert("❌ Failed to update team details.");
+    });
+};
 
   if (error) {
     return (
@@ -115,9 +149,9 @@ export default function TeamDetailsPage() {
             autoFocus
           />
         ) : (
-          <span onClick={() => setHoverField("teamName")} style={styles.clickable}>
-            {team.teamName || <span style={styles.placeholder}></span>}
-          </span>
+         <span onClick={() => setHoverField("teamName")} style={styles.clickable}>
+         {team?.teamName ?? <span style={styles.placeholder}></span>}
+       </span>
         )}
       </div>
 
@@ -171,30 +205,20 @@ export default function TeamDetailsPage() {
         )}
       </div>
 
-      {/* Tournament Name */}
-      <div
-        style={styles.field}
-        onMouseEnter={() => setHoverField("tournamentName")}
-        onMouseLeave={() => setHoverField(null)}
-      >
+      {/* Tournament Name (non-editable) */}
+      <div style={styles.field}>
         <strong>Tournament:</strong>{" "}
-        {hoverField === "tournamentName" ? (
-          <input
-            type="text"
-            value={editableFields.tournamentName}
-            onChange={e => handleInputChange("tournamentName", e.target.value)}
-            onBlur={() => commitField("tournamentName")}
-            onKeyDown={e => handleKeyDown(e, "tournamentName")}
-            placeholder={team.tournamentAssociatedWithTeamDTO?.tournamentName || "Add tournament"}
-            style={styles.input}
-            autoFocus
-          />
-        ) : (
-          <span onClick={() => setHoverField("tournamentName")} style={styles.clickable}>
-            {team.tournamentAssociatedWithTeamDTO?.tournamentName || <span style={styles.placeholder}></span>}
-          </span>
-        )}
+        <span>
+          {team.tournamentAssociatedWithTeamDTO?.tournamentName || <span style={styles.placeholder}></span>}
+        </span>
       </div>
+
+      {/* Update Button */}
+      {hasPendingChanges && (
+        <button onClick={handleUpdate} style={styles.button}>
+          Update Details
+        </button>
+      )}
     </div>
   );
 }
@@ -229,8 +253,7 @@ const styles = {
     minWidth: '120px',
     height: '1.2rem',
     borderBottom: '1px dashed #ccc',
-    opacity: 0.4,
-    cursor: 'pointer'
+    opacity: 0.4
   },
   clickable: {
     cursor: 'pointer'
