@@ -1,5 +1,6 @@
 package com.aghni.tournament_scheduler.tournament.mapper;
 
+import com.aghni.tournament_scheduler.match.Mapper.MatchMapper;
 import com.aghni.tournament_scheduler.match.entity.Match;
 import com.aghni.tournament_scheduler.match.model.Matchup;
 
@@ -13,4 +14,9 @@ public class TournamentMapper {
         match.setTeamB(matchup.getTeamB());
         return match;
     }
+
+    public static Matchup toMatchupDTO(Match match) {
+        return MatchMapper.toMatchUp(match);
+    }
+
 }

@@ -63,4 +63,15 @@ public class TournamentDetailsResponse {
         this.matchUp = matchUp;
         this.tournamentId = tournamentId;
     }
+
+    @Override
+    public String toString() {
+        return "TournamentDetailsResponse{" +
+                "tournamentId=" + tournamentId +
+                ", tournamentName='" + tournamentName + '\'' +
+                ", tournamentType='" + tournamentType + '\'' +
+                ", teams=" + teams +
+                ", matchUp=" + matchUp +
+                '}';
+    }
 }

@@ -1,5 +1,6 @@
 package com.aghni.tournament_scheduler.match.entity;
 
+import com.aghni.tournament_scheduler.tournament.entity.Tournament;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,6 +17,10 @@ public class Match {
     private Integer scoreOfTeamA;
     @Column(name = "score_Of_Team_B")
     private Integer scoreOfTeamB;
+
+    @ManyToOne
+    @JoinColumn(name = "tournament_id")
+    private Tournament tournament;
 
     public Integer getMatchId() {
         return matchId;
@@ -57,15 +62,36 @@ public class Match {
         this.scoreOfTeamB = scoreOfTeamB;
     }
 
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
+    }
+
     public Match(){
 
     }
 
-   public Match(Integer matchId,String teamA, String teamB, Integer scoreOfTeamA, Integer scoreOfTeamB) {
+   public Match(Integer matchId,String teamA, String teamB, Integer scoreOfTeamA, Integer scoreOfTeamB, Tournament tournament) {
         this.matchId = matchId;
         this.teamA = teamA;
         this.teamB = teamB;
         this.scoreOfTeamA = scoreOfTeamA;
         this.scoreOfTeamB = scoreOfTeamB;
+        this.tournament = tournament;
    }
+
+    @Override
+    public String toString() {
+        return "Match{" +
+                "matchId=" + matchId +
+                ", teamA='" + teamA + '\'' +
+                ", teamB='" + teamB + '\'' +
+                ", scoreOfTeamA=" + scoreOfTeamA +
+                ", scoreOfTeamB=" + scoreOfTeamB +
+                ", tournament=" + tournament +
+                '}';
+    }
 }
