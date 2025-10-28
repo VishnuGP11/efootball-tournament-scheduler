@@ -36,7 +36,6 @@ public class TournamentController {
             URI redirectUri = URI.create("/tournaments/" + tournamentId + "/details");
             return ResponseEntity.status(HttpStatus.SEE_OTHER).location(redirectUri).build();
         } else {
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 

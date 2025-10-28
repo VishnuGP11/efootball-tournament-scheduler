@@ -6,10 +6,19 @@ import java.util.List;
 
 public class TournamentDetailsResponse {
 
+    private Integer tournamentId;
     private String tournamentName;
     private String tournamentType;
     private List<TeamDetailsDTO> teams;
     private List<Matchup> matchUp;
+
+    public Integer getTournamentId() {
+        return tournamentId;
+    }
+
+    public void setTournamentId(Integer tournamentId) {
+        this.tournamentId = tournamentId;
+    }
 
     public String getTournamentType() {
         return tournamentType;
@@ -47,10 +56,11 @@ public class TournamentDetailsResponse {
 
     }
 
-    public TournamentDetailsResponse(String tournamentName, String tournamentType, List<TeamDetailsDTO> teams, List<Matchup> matchUp) {
+    public TournamentDetailsResponse(String tournamentName, String tournamentType, List<TeamDetailsDTO> teams, List<Matchup> matchUp, Integer tournamentId) {
         this.tournamentName = tournamentName;
         this.tournamentType = tournamentType;
         this.teams = teams;
         this.matchUp = matchUp;
+        this.tournamentId = tournamentId;
     }
 }

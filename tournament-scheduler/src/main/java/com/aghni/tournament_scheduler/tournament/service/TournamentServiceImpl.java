@@ -45,6 +45,7 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setNumberOfTeams(addTournamentRequest.getNumberOfTeams());
         tournament.setTypeOfSchedule(addTournamentRequest.getTypeOfSchedule());
 
+        // for setting team name according to number of teams
         List<Team> teams = new ArrayList<>();
         for(int i=1; i<=addTournamentRequest.getNumberOfTeams(); i++){
             Team team = new Team("Team"+i+" "+addTournamentRequest.getTournamentName());
@@ -119,6 +120,7 @@ public class TournamentServiceImpl implements TournamentService {
         }
 
         TournamentDetailsResponse response = new TournamentDetailsResponse();
+        response.setTournamentId(tournamentId);
         response.setTournamentName(tournament.getTournamentName());
         response.setTournamentType(tournament.getTypeOfSchedule());
         response.setTeams(teams.stream()
@@ -129,6 +131,5 @@ public class TournamentServiceImpl implements TournamentService {
 
         return response;
     }
-
 
 }
