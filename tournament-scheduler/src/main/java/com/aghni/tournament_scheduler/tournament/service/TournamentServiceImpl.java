@@ -3,6 +3,7 @@ package com.aghni.tournament_scheduler.tournament.service;
 import com.aghni.tournament_scheduler.match.entity.Match;
 import com.aghni.tournament_scheduler.match.repository.MatchRepository;
 import com.aghni.tournament_scheduler.team.entity.Team;
+import com.aghni.tournament_scheduler.team.repository.TeamRepository;
 import com.aghni.tournament_scheduler.tournament.entity.Tournament;
 import com.aghni.tournament_scheduler.tournament.exception.TournamentNotFoundException;
 import com.aghni.tournament_scheduler.tournament.mapper.TournamentMapper;
@@ -32,9 +33,13 @@ public class TournamentServiceImpl implements TournamentService {
     @Autowired
     private MatchRepository matchRepository;
 
-    public TournamentServiceImpl(TournamentRepository tournamentRepository, MatchRepository matchRepository) {
+    @Autowired
+    private TeamRepository teamRepository;
+
+    public TournamentServiceImpl(TournamentRepository tournamentRepository, MatchRepository matchRepository, TeamRepository teamRepository) {
         this.tournamentRepository = tournamentRepository;
         this.matchRepository = matchRepository;
+        this.teamRepository = teamRepository;
     }
 
     @Override
@@ -53,6 +58,8 @@ public class TournamentServiceImpl implements TournamentService {
             teams.add(team);
         }
         tournament.setTeams(teams);
+
+        
 
 
         Tournament savedTournament = tournamentRepository.save(tournament);
@@ -80,28 +87,42 @@ public class TournamentServiceImpl implements TournamentService {
 
     private List<Match> generateMatches(Tournament savedTournament) {
         List<Match> matches = new ArrayList<>();
-
         List<Team> teams = savedTournament.getTeams();
         String type = savedTournament.getTypeOfSchedule();
 
         if ("round robin".equalsIgnoreCase(type)) {
             for (int i = 0; i < teams.size(); i++) {
                 for (int j = i + 1; j < teams.size(); j++) {
-                    Matchup matchup = new Matchup(teams.get(i).getTeamName(), teams.get(j).getTeamName(), 0, 0);
-                    Match match = TournamentMapper.toMatchEntity(matchup);
+                    Team teamA = teams.get(i);
+                    Team teamB = teams.get(j);
+
+                    Matchup matchup = new Matchup();
+                    matchup.setTeamAId(teamA.getTeamId());
+                    matchup.setTeamBId(teamB.getTeamId());
+                    matchup.setTeamA(teamA.getTeamName());
+                    matchup.setTeamB(teamB.getTeamName());
+                    matchup.setGoalsScoredByTeamA(0);
+                    matchup.setGoalsScoredByTeamB(0);
+
+                    Match match = TournamentMapper.toMatchEntity(matchup, teamA, teamB);
                     match.setTournament(savedTournament);
                     matches.add(match);
                 }
             }
         } else if ("elimination".equalsIgnoreCase(type)) {
             for (int i = 0; i < teams.size(); i += 2) {
-                Matchup matchup;
-                if (i + 1 < teams.size()) {
-                    matchup = new Matchup(teams.get(i).getTeamName(), teams.get(i + 1).getTeamName(), 0, 0);
-                } else {
-                    matchup = new Matchup(teams.get(i).getTeamName(), "BYE", 0, 0);
-                }
-                Match match = TournamentMapper.toMatchEntity(matchup);
+                Team teamA = teams.get(i);
+                Team teamB = (i + 1 < teams.size()) ? teams.get(i + 1) : null;
+
+                Matchup matchup = new Matchup();
+                matchup.setTeamAId(teamA.getTeamId());
+                matchup.setTeamBId(teamB != null ? teamB.getTeamId() : null);
+                matchup.setTeamA(teamA.getTeamName());
+                matchup.setTeamB(teamB != null ? teamB.getTeamName() : "BYE");
+                matchup.setGoalsScoredByTeamA(0);
+                matchup.setGoalsScoredByTeamB(0);
+
+                Match match = TournamentMapper.toMatchEntity(matchup, teamA, teamB);
                 match.setTournament(savedTournament);
                 matches.add(match);
             }
@@ -109,9 +130,6 @@ public class TournamentServiceImpl implements TournamentService {
 
         return matches;
     }
-
-
-
 
     public Integer returnTournamentIdUsingName(String tournamentName) {
         return tournamentRepository.findTournamentByTournamentName(tournamentName).getTournamentId();
@@ -125,26 +143,27 @@ public class TournamentServiceImpl implements TournamentService {
                 .orElseThrow(() -> new TournamentNotFoundException(
                         "Tournament not found for the mentioned id :" + tournamentId));
 
-        // ✅ Only FETCH existing matches — no creation
         List<Match> existingMatches = matchRepository.findByTournament_TournamentId(tournamentId);
         logger.info("list of matches fetched : " + existingMatches.toString());
+
         List<Matchup> matchups = existingMatches.stream()
                 .map(TournamentMapper::toMatchupDTO)
                 .collect(Collectors.toList());
-
-        logger.info("list of matchups fetched : " + matchups.toString());
 
         TournamentDetailsResponse response = new TournamentDetailsResponse();
         response.setTournamentId(tournamentId);
         response.setTournamentName(tournament.getTournamentName());
         response.setTournamentType(tournament.getTypeOfSchedule());
-        response.setTeams(tournament.getTeams().stream()
-                .map(team -> new TeamDetailsDTO(team.getId(), team.getTeamName()))
-                .collect(Collectors.toList()));
+        response.setTeams(
+                tournament.getTeams().stream()
+                        .map(team -> new TeamDetailsDTO(team.getTeamId(), team.getTeamName()))
+                        .collect(Collectors.toList())
+        );
         response.setMatchUp(matchups);
         logger.info("response of tournament details fetched : " + response.toString());
 
         return response;
     }
+
 
 }
