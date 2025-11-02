@@ -13,7 +13,7 @@ public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_id")
-    private Integer id;
+    private Integer teamId;
     @Column(nullable = false)
     private String teamName;
     @Column(name = "owner")
@@ -26,12 +26,12 @@ public class Team {
     @JoinColumn(name="tournament_id")
     private Tournament tournament;
 
-    public Integer getId() {
-        return id;
+    public Integer getTeamId() {
+        return teamId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setTeamId(Integer teamId) {
+        this.teamId = teamId;
     }
 
     public String getTeamName() {
@@ -73,8 +73,8 @@ public class Team {
         this.teamName = teamName;
     }
 
-    public Team(Integer id, String teamName, String owner, String playingStyle, Tournament tournament) {
-        this.id = id;
+    public Team(Integer teamId, String teamName, String owner, String playingStyle, Tournament tournament) {
+        this.teamId = teamId;
         this.teamName = teamName;
         this.owner = owner;
         this.playingStyle = playingStyle;

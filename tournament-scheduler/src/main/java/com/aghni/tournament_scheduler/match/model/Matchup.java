@@ -3,6 +3,9 @@ package com.aghni.tournament_scheduler.match.model;
 public class Matchup {
 
     private Integer matchId;
+
+    private Integer teamAId;
+    private Integer teamBId;
     private String teamA;
     private String teamB;
     private Integer goalsScoredByTeamA;
@@ -14,6 +17,22 @@ public class Matchup {
 
     public void setMatchId(Integer matchId) {
         this.matchId = matchId;
+    }
+
+    public Integer getTeamAId() {
+        return teamAId;
+    }
+
+    public void setTeamAId(Integer teamAId) {
+        this.teamAId = teamAId;
+    }
+
+    public Integer getTeamBId() {
+        return teamBId;
+    }
+
+    public void setTeamBId(Integer teamBId) {
+        this.teamBId = teamBId;
     }
 
     public String getTeamA() {
@@ -51,6 +70,16 @@ public class Matchup {
         this.teamA = teamA;
         this.teamB = teamB;
         this.goalsScoredByTeamA = goalsScoredByTeamA;
+        this.goalsScoredByTeamB = goalsScoredByTeamB;
+    }
+
+    public Matchup(Integer matchId, Integer teamAId, Integer teamBId, String teamA, Integer goalsScoredByTeamA, String teamB, Integer goalsScoredByTeamB) {
+        this.matchId = matchId;
+        this.teamAId = teamAId;
+        this.teamBId = teamBId;
+        this.teamA = teamA;
+        this.goalsScoredByTeamA = goalsScoredByTeamA;
+        this.teamB = teamB;
         this.goalsScoredByTeamB = goalsScoredByTeamB;
     }
 

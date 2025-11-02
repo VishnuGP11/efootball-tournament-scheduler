@@ -1,5 +1,6 @@
 package com.aghni.tournament_scheduler.match.entity;
 
+import com.aghni.tournament_scheduler.team.entity.Team;
 import com.aghni.tournament_scheduler.tournament.entity.Tournament;
 import jakarta.persistence.*;
 
@@ -9,10 +10,15 @@ public class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer matchId;
-    @Column(name = "team_A")
-    private String teamA;
-    @Column(name = "team_B")
-    private String teamB;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_a_id")
+    private Team teamA;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_b_id")
+    private Team teamB;
+
     @Column(name = "score_Of_Team_A")
     private Integer scoreOfTeamA;
     @Column(name = "score_Of_Team_B")
@@ -30,19 +36,19 @@ public class Match {
         this.matchId = matchId;
     }
 
-    public String getTeamA() {
+    public Team getTeamA() {
         return teamA;
     }
 
-    public void setTeamA(String teamA) {
+    public void setTeamA(Team teamA) {
         this.teamA = teamA;
     }
 
-    public String getTeamB() {
+    public Team getTeamB() {
         return teamB;
     }
 
-    public void setTeamB(String teamB) {
+    public void setTeamB(Team teamB) {
         this.teamB = teamB;
     }
 
@@ -74,7 +80,7 @@ public class Match {
 
     }
 
-   public Match(Integer matchId,String teamA, String teamB, Integer scoreOfTeamA, Integer scoreOfTeamB, Tournament tournament) {
+   public Match(Integer matchId,Team teamA, Team teamB, Integer scoreOfTeamA, Integer scoreOfTeamB, Tournament tournament) {
         this.matchId = matchId;
         this.teamA = teamA;
         this.teamB = teamB;

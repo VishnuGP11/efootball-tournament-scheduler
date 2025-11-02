@@ -10,7 +10,7 @@ public class TeamMapper {
 
     public static TeamDetailsResponse teamToTeamDetailsResponse(Team team) {
         TeamDetailsResponse teamDetailsResponse = new TeamDetailsResponse();
-        teamDetailsResponse.setTeamId(team.getId());
+        teamDetailsResponse.setTeamId(team.getTeamId());
         teamDetailsResponse.setTeamName(team.getTeamName());
         teamDetailsResponse.setOwner(team.getOwner());
         teamDetailsResponse.setPlayingStyle(team.getPlayingStyle());
@@ -24,7 +24,7 @@ public class TeamMapper {
     }
     public static Team teamRequestDTOToTeam(TeamRequestDTO teamRequestDTO) {
         Team team = new Team();
-        team.setId(teamRequestDTO.getTeamId());
+        team.setTeamId(teamRequestDTO.getTeamId());
         team.setTeamName(teamRequestDTO.getTeamName());
         team.setPlayingStyle(teamRequestDTO.getPlayingStyle());
         team.setOwner(teamRequestDTO.getOwner());
